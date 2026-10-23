@@ -1,0 +1,793 @@
+{
+  "generated_at": "2026-10-22T21:04:33",
+  "root": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/raw/polyvore",
+  "feature_dir": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/processed/clip_features",
+  "module_a_passed": true,
+  "expected_dim": 512,
+  "note": "特征行顺序与 Parquet 行顺序可能不一致（多进程提取交错所致）；下游务必通过 item_ids.json 建立 item_id -> 特征行 映射，不可按位置对齐。",
+  "splits": {
+    "train": {
+      "files": {
+        "train.json": {
+          "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/raw/polyvore/disjoint/train.json",
+          "exists": true,
+          "size_bytes": 9654112
+        },
+        "compatibility_train.txt": {
+          "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/raw/polyvore/disjoint/compatibility_train.txt",
+          "exists": true,
+          "size_bytes": 2140466
+        },
+        "train.parquet": {
+          "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/raw/polyvore/data/disjoint/train.parquet",
+          "exists": true,
+          "size_bytes": 680584657
+        }
+      },
+      "parquet_audit": {
+        "num_rows": 71967,
+        "num_item_ids": 71967,
+        "unique_item_ids": 71967,
+        "duplicate_item_ids": 0,
+        "id_type": "str"
+      },
+      "feature_parquet_correspondence": {
+        "set_equal": true,
+        "feat_only_count": 0,
+        "parquet_only_count": 0,
+        "feat_only_examples": [],
+        "parquet_only_examples": [],
+        "row_order_match": false
+      },
+      "json_audit": {
+        "num_outfits": 16995,
+        "num_item_refs": 85935,
+        "unique_item_ids": 71967,
+        "duplicate_set_ids": 0,
+        "duplicate_set_index_pairs": 0,
+        "items_per_outfit_distribution": {
+          "2": 346,
+          "3": 1842,
+          "4": 4178,
+          "5": 4850,
+          "6": 3208,
+          "7": 1581,
+          "8": 639,
+          "9": 231,
+          "10": 90,
+          "11": 18,
+          "12": 9,
+          "13": 1,
+          "14": 1,
+          "16": 1
+        },
+        "index_min": 1,
+        "index_max": 16,
+        "index_non_contiguous_outfits": 0,
+        "items_appearing_in_multiple_outfits": 9420,
+        "max_item_repeat": 23
+      },
+      "json_mapping": {
+        "json_unique_items": 71967,
+        "json_in_parquet": 71967,
+        "json_parquet_match_ratio": 1.0,
+        "json_not_in_parquet": [],
+        "json_not_in_parquet_count": 0,
+        "parquet_not_in_json_count": 0,
+        "json_in_features": 71967,
+        "json_feature_match_ratio": 1.0,
+        "json_not_in_features": [],
+        "json_not_in_features_count": 0,
+        "features_not_in_json_count": 0
+      },
+      "compatibility_feature_check": {
+        "num_lines": 33990,
+        "num_positive": 16995,
+        "num_negative": 16995,
+        "total_tokens": 171870,
+        "ok_tokens": 171870,
+        "fail_tokens": 0,
+        "fail_examples": []
+      },
+      "fill_in_blank_feature_check": {
+        "num_questions": 16995,
+        "total_tokens": 136920,
+        "ok_tokens": 136920,
+        "fail_tokens": 0,
+        "fail_examples": []
+      },
+      "random_sample": [
+        {
+          "set_id": "39062059",
+          "index": 1,
+          "item_id": "44536597",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 2,
+          "item_id": "45175490",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 3,
+          "item_id": "44501361",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 4,
+          "item_id": "44768535",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 5,
+          "item_id": "40488723",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 6,
+          "item_id": "42529189",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 7,
+          "item_id": "36584242",
+          "has_feature": true
+        },
+        {
+          "set_id": "39062059",
+          "index": 8,
+          "item_id": "44765624",
+          "has_feature": true
+        },
+        {
+          "set_id": "202953805",
+          "index": 1,
+          "item_id": "169939112",
+          "has_feature": true
+        },
+        {
+          "set_id": "202953805",
+          "index": 2,
+          "item_id": "147341866",
+          "has_feature": true
+        },
+        {
+          "set_id": "202953805",
+          "index": 3,
+          "item_id": "172775743",
+          "has_feature": true
+        },
+        {
+          "set_id": "202953805",
+          "index": 4,
+          "item_id": "161129966",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 1,
+          "item_id": "210994511",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 2,
+          "item_id": "203477590",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 3,
+          "item_id": "190522106",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 4,
+          "item_id": "202431060",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 5,
+          "item_id": "118559254",
+          "has_feature": true
+        },
+        {
+          "set_id": "223156315",
+          "index": 6,
+          "item_id": "201804018",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 1,
+          "item_id": "208379919",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 2,
+          "item_id": "202606586",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 3,
+          "item_id": "196520142",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 4,
+          "item_id": "207865079",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 5,
+          "item_id": "203338221",
+          "has_feature": true
+        },
+        {
+          "set_id": "223070939",
+          "index": 6,
+          "item_id": "176646045",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 1,
+          "item_id": "209270015",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 2,
+          "item_id": "185406278",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 3,
+          "item_id": "209659492",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 4,
+          "item_id": "203803913",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 5,
+          "item_id": "205639811",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 6,
+          "item_id": "207211115",
+          "has_feature": true
+        },
+        {
+          "set_id": "222841497",
+          "index": 7,
+          "item_id": "209186792",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 1,
+          "item_id": "59420804",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 2,
+          "item_id": "39344788",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 3,
+          "item_id": "69716297",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 4,
+          "item_id": "58001948",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 5,
+          "item_id": "66192881",
+          "has_feature": true
+        },
+        {
+          "set_id": "72036353",
+          "index": 6,
+          "item_id": "66753870",
+          "has_feature": true
+        },
+        {
+          "set_id": "221424454",
+          "index": 1,
+          "item_id": "180608199",
+          "has_feature": true
+        },
+        {
+          "set_id": "221424454",
+          "index": 2,
+          "item_id": "187673730",
+          "has_feature": true
+        },
+        {
+          "set_id": "221424454",
+          "index": 3,
+          "item_id": "205300645",
+          "has_feature": true
+        },
+        {
+          "set_id": "221424454",
+          "index": 4,
+          "item_id": "208710429",
+          "has_feature": true
+        },
+        {
+          "set_id": "216844587",
+          "index": 1,
+          "item_id": "200587578",
+          "has_feature": true
+        },
+        {
+          "set_id": "216844587",
+          "index": 2,
+          "item_id": "199321476",
+          "has_feature": true
+        },
+        {
+          "set_id": "216844587",
+          "index": 3,
+          "item_id": "188939781",
+          "has_feature": true
+        },
+        {
+          "set_id": "216844587",
+          "index": 4,
+          "item_id": "200588216",
+          "has_feature": true
+        },
+        {
+          "set_id": "214366127",
+          "index": 1,
+          "item_id": "194884803",
+          "has_feature": true
+        },
+        {
+          "set_id": "214366127",
+          "index": 2,
+          "item_id": "195000545",
+          "has_feature": true
+        },
+        {
+          "set_id": "214366127",
+          "index": 3,
+          "item_id": "194884336",
+          "has_feature": true
+        },
+        {
+          "set_id": "214366127",
+          "index": 4,
+          "item_id": "194990288",
+          "has_feature": true
+        },
+        {
+          "set_id": "209492400",
+          "index": 1,
+          "item_id": "154771632",
+          "has_feature": true
+        },
+        {
+          "set_id": "209492400",
+          "index": 2,
+          "item_id": "148265790",
+          "has_feature": true
+        },
+        {
+          "set_id": "209492400",
+          "index": 3,
+          "item_id": "181703010",
+          "has_feature": true
+        },
+        {
+          "set_id": "209492400",
+          "index": 4,
+          "item_id": "158782770",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 1,
+          "item_id": "43524310",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 2,
+          "item_id": "76079766",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 3,
+          "item_id": "75807353",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 4,
+          "item_id": "71815215",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 5,
+          "item_id": "71321636",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 6,
+          "item_id": "73886410",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 7,
+          "item_id": "75778769",
+          "has_feature": true
+        },
+        {
+          "set_id": "71357513",
+          "index": 8,
+          "item_id": "73475756",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 1,
+          "item_id": "132612887",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 2,
+          "item_id": "88269076",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 3,
+          "item_id": "112106398",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 4,
+          "item_id": "87947120",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 5,
+          "item_id": "137765568",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 6,
+          "item_id": "73352108",
+          "has_feature": true
+        },
+        {
+          "set_id": "184212607",
+          "index": 7,
+          "item_id": "62891951",
+          "has_feature": true
+        },
+        {
+          "set_id": "207188529",
+          "index": 1,
+          "item_id": "181345174",
+          "has_feature": true
+        },
+        {
+          "set_id": "207188529",
+          "index": 2,
+          "item_id": "128245411",
+          "has_feature": true
+        },
+        {
+          "set_id": "207188529",
+          "index": 3,
+          "item_id": "171067772",
+          "has_feature": true
+        },
+        {
+          "set_id": "207188529",
+          "index": 4,
+          "item_id": "178331286",
+          "has_feature": true
+        },
+        {
+          "set_id": "207188529",
+          "index": 5,
+          "item_id": "167587834",
+          "has_feature": true
+        },
+        {
+          "set_id": "204107897",
+          "index": 1,
+          "item_id": "153347093",
+          "has_feature": true
+        },
+        {
+          "set_id": "204107897",
+          "index": 2,
+          "item_id": "170556867",
+          "has_feature": true
+        },
+        {
+          "set_id": "204107897",
+          "index": 3,
+          "item_id": "177502445",
+          "has_feature": true
+        },
+        {
+          "set_id": "204107897",
+          "index": 4,
+          "item_id": "156365039",
+          "has_feature": true
+        },
+        {
+          "set_id": "220264887",
+          "index": 1,
+          "item_id": "202717981",
+          "has_feature": true
+        },
+        {
+          "set_id": "220264887",
+          "index": 2,
+          "item_id": "203052368",
+          "has_feature": true
+        },
+        {
+          "set_id": "220264887",
+          "index": 3,
+          "item_id": "206822355",
+          "has_feature": true
+        },
+        {
+          "set_id": "220264887",
+          "index": 4,
+          "item_id": "131405517",
+          "has_feature": true
+        },
+        {
+          "set_id": "220264887",
+          "index": 5,
+          "item_id": "206415372",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 1,
+          "item_id": "51204348",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 2,
+          "item_id": "44495112",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 3,
+          "item_id": "57769259",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 4,
+          "item_id": "8089954",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 5,
+          "item_id": "45625150",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 6,
+          "item_id": "46161795",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 7,
+          "item_id": "26760608",
+          "has_feature": true
+        },
+        {
+          "set_id": "63207008",
+          "index": 8,
+          "item_id": "50609742",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 1,
+          "item_id": "159946988",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 2,
+          "item_id": "208202866",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 3,
+          "item_id": "166687651",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 4,
+          "item_id": "207965226",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 5,
+          "item_id": "206276682",
+          "has_feature": true
+        },
+        {
+          "set_id": "222230131",
+          "index": 6,
+          "item_id": "205509366",
+          "has_feature": true
+        },
+        {
+          "set_id": "147743165",
+          "index": 1,
+          "item_id": "127458310",
+          "has_feature": true
+        },
+        {
+          "set_id": "147743165",
+          "index": 2,
+          "item_id": "116108137",
+          "has_feature": true
+        },
+        {
+          "set_id": "147743165",
+          "index": 3,
+          "item_id": "123140382",
+          "has_feature": true
+        },
+        {
+          "set_id": "147743165",
+          "index": 4,
+          "item_id": "125601803",
+          "has_feature": true
+        },
+        {
+          "set_id": "147743165",
+          "index": 5,
+          "item_id": "126306619",
+          "has_feature": true
+        },
+        {
+          "set_id": "212675980",
+          "index": 1,
+          "item_id": "181227444",
+          "has_feature": true
+        },
+        {
+          "set_id": "212675980",
+          "index": 2,
+          "item_id": "185295487",
+          "has_feature": true
+        },
+        {
+          "set_id": "212675980",
+          "index": 3,
+          "item_id": "190530604",
+          "has_feature": true
+        },
+        {
+          "set_id": "221885869",
+          "index": 1,
+          "item_id": "208561803",
+          "has_feature": true
+        },
+        {
+          "set_id": "221885869",
+          "index": 2,
+          "item_id": "209318107",
+          "has_feature": true
+        },
+        {
+          "set_id": "221885869",
+          "index": 3,
+          "item_id": "199866845",
+          "has_feature": true
+        },
+        {
+          "set_id": "221885869",
+          "index": 4,
+          "item_id": "190721737",
+          "has_feature": true
+        }
+      ]
+    }
+  },
+  "feature_audit": {
+    "features_npy": {
+      "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/processed/clip_features/features.npy",
+      "exists": true,
+      "size_bytes": 147388544
+    },
+    "item_ids_json": {
+      "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/processed/clip_features/item_ids.json",
+      "exists": true,
+      "size_bytes": 928641
+    },
+    "failed_json": {
+      "path": "/sessions/charming-relaxed-fermi/mnt/outfit_ai/data/processed/clip_features/failed.json",
+      "exists": true,
+      "size_bytes": 2
+    },
+    "shape": [
+      71967,
+      512
+    ],
+    "dtype": "float32",
+    "ndim": 2,
+    "num_rows": 71967,
+    "feature_dim": 512,
+    "num_item_ids": 71967,
+    "all_str": true,
+    "non_empty": true,
+    "unique_item_ids": 71967,
+    "duplicate_item_ids": 0,
+    "nan_count": 0,
+    "inf_count": 0,
+    "zero_norm_rows": 0,
+    "l2_norm_min": 0.9999998211860657,
+    "l2_norm_max": 1.0000001192092896,
+    "l2_norm_mean": 1.0,
+    "failed_records": []
+  },
+  "errors": [],
+  "warnings": [
+    "特征行顺序与 Parquet 行顺序不一致（前 71967 行中 36516 处不同）。这不影响正确性，但下游**必须通过 item_ids.json 建立 item_id -> 特征行 的映射**，不可按位置对齐。"
+  ],
+  "overall_passed": true
+}

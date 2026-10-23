@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-10-22T22:00:51",
+  "seed": 42,
+  "model": "MeanPoolMLP",
+  "arch": {
+    "in_dim": 512,
+    "hidden": 256,
+    "out_dim": 1
+  },
+  "pooling": "mean (L2-normalized CLIP features, frozen)",
+  "loss": "BCEWithLogitsLoss",
+  "optimizer": "Adam",
+  "lr": 0.001,
+  "batch_size": 512,
+  "epochs": 100,
+  "patience": 15,
+  "holdout_frac": 0.15,
+  "n_params": 131585,
+  "validation_scheme": "train 内部按 set_id 留出验证集；正样本=真实搭配，负样本=官方风格随机假搭配",
+  "official_valid_blocked_reason": "CLIP 特征仅覆盖 train 划分商品，官方 valid 商品大多无特征",
+  "official_valid_coverage": {
+    "compatibility_valid_total_lines": 6000,
+    "unresolved_token": 0,
+    "no_feature": 22182,
+    "empty_line": 1255,
+    "usable_lines": 4745,
+    "reason": "CLIP 特征仅覆盖 train 划分商品，官方 valid 商品大多无特征"
+  },
+  "data": {
+    "train_samples": 28892,
+    "val_samples": 5098,
+    "train_label_dist": {
+      "1.0": 14446,
+      "0.0": 14446
+    },
+    "val_label_dist": {
+      "1.0": 2549,
+      "0.0": 2549
+    },
+    "n_train_outfits": 14446,
+    "n_val_outfits": 2549,
+    "official_train_parse_stats": {},
+    "fitb_questions": 2549
+  }
+}

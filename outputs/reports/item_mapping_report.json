@@ -1,0 +1,289 @@
+{
+  "generated_at": "2026-10-21T23:01:27",
+  "root": "E:\\code\\outfit_ai\\data\\raw\\polyvore",
+  "mapping_rule": "compatibility 中的 token 形如 '{set_id}_{index}'，按最后一个下划线拆分得到 set_id 与 index；再在搭配 JSON 中查找 set_id 对应穿搭、index 对应的 item_id；最后校验该 item_id 存在于对应划分 Parquet 的 item_id 列。注意：token 前缀是 set_id，真实 item_id 是另一个数字，不可直接删除 '_index' 后缀得到。",
+  "parquet_naming_note": "json/txt 划分名为 valid，Parquet 文件名为 validation.parquet（已核实）。",
+  "splits": {
+    "train": {
+      "split": "train",
+      "files": {
+        "train.json": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\train.json",
+          "exists": true,
+          "size_bytes": 9654112
+        },
+        "compatibility_train.txt": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\compatibility_train.txt",
+          "exists": true,
+          "size_bytes": 2140466
+        },
+        "train.parquet": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\data\\disjoint\\train.parquet",
+          "exists": true,
+          "size_bytes": 680584657
+        }
+      },
+      "json_stats": {
+        "num_outfits": 16995,
+        "duplicate_set_ids": 0,
+        "duplicate_set_index_pairs": 0,
+        "num_item_refs": 85935
+      },
+      "parquet_stats": {
+        "num_item_ids": 71967,
+        "filename": "train.parquet"
+      },
+      "txt_stats": {
+        "num_lines": 33990,
+        "num_positive": 16995,
+        "num_negative": 16995,
+        "tokens_per_line_min": 2,
+        "tokens_per_line_max": 16,
+        "num_unique_tokens": 85935,
+        "num_unique_set_ids": 16995
+      },
+      "set_consistency": {
+        "txt_num_unique_set_ids": 16995,
+        "json_num_set_ids": 16995,
+        "txt_only_set_ids": [],
+        "json_only_set_ids": []
+      },
+      "mapping_stats": {
+        "total_tokens": 171870,
+        "ok_tokens": 171870,
+        "fail_tokens": 0,
+        "ok_ratio": 1.0,
+        "fail_lines": 0,
+        "num_lines": 33990,
+        "fail_reasons": {},
+        "num_json_outfits": 16995
+      },
+      "ok_examples": [
+        {
+          "token": "199244701_1",
+          "set_id": "199244701",
+          "index": 1,
+          "item_id": "132621870"
+        },
+        {
+          "token": "199244701_2",
+          "set_id": "199244701",
+          "index": 2,
+          "item_id": "153967122"
+        },
+        {
+          "token": "199244701_3",
+          "set_id": "199244701",
+          "index": 3,
+          "item_id": "171169800"
+        },
+        {
+          "token": "199244701_4",
+          "set_id": "199244701",
+          "index": 4,
+          "item_id": "162799044"
+        },
+        {
+          "token": "199244701_5",
+          "set_id": "199244701",
+          "index": 5,
+          "item_id": "172538912"
+        }
+      ],
+      "failure_examples": [],
+      "passed": true
+    },
+    "valid": {
+      "split": "valid",
+      "files": {
+        "valid.json": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\valid.json",
+          "exists": true,
+          "size_bytes": 1715690
+        },
+        "compatibility_valid.txt": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\compatibility_valid.txt",
+          "exists": true,
+          "size_bytes": 380523
+        },
+        "validation.parquet": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\data\\disjoint\\validation.parquet",
+          "exists": true,
+          "size_bytes": 138855820
+        }
+      },
+      "json_stats": {
+        "num_outfits": 3000,
+        "duplicate_set_ids": 0,
+        "duplicate_set_index_pairs": 0,
+        "num_item_refs": 15288
+      },
+      "parquet_stats": {
+        "num_item_ids": 14657,
+        "filename": "validation.parquet"
+      },
+      "txt_stats": {
+        "num_lines": 6000,
+        "num_positive": 3000,
+        "num_negative": 3000,
+        "tokens_per_line_min": 2,
+        "tokens_per_line_max": 14,
+        "num_unique_tokens": 15288,
+        "num_unique_set_ids": 3000
+      },
+      "set_consistency": {
+        "txt_num_unique_set_ids": 3000,
+        "json_num_set_ids": 3000,
+        "txt_only_set_ids": [],
+        "json_only_set_ids": []
+      },
+      "mapping_stats": {
+        "total_tokens": 30576,
+        "ok_tokens": 30576,
+        "fail_tokens": 0,
+        "ok_ratio": 1.0,
+        "fail_lines": 0,
+        "num_lines": 6000,
+        "fail_reasons": {},
+        "num_json_outfits": 3000
+      },
+      "ok_examples": [
+        {
+          "token": "223648758_1",
+          "set_id": "223648758",
+          "index": 1,
+          "item_id": "211863963"
+        },
+        {
+          "token": "223648758_2",
+          "set_id": "223648758",
+          "index": 2,
+          "item_id": "211794495"
+        },
+        {
+          "token": "223648758_3",
+          "set_id": "223648758",
+          "index": 3,
+          "item_id": "187542135"
+        },
+        {
+          "token": "223648758_4",
+          "set_id": "223648758",
+          "index": 4,
+          "item_id": "212083222"
+        },
+        {
+          "token": "223648758_5",
+          "set_id": "223648758",
+          "index": 5,
+          "item_id": "210919977"
+        }
+      ],
+      "failure_examples": [],
+      "passed": true
+    },
+    "test": {
+      "split": "test",
+      "files": {
+        "test.json": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\test.json",
+          "exists": true,
+          "size_bytes": 8364949
+        },
+        "compatibility_test.txt": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\disjoint\\compatibility_test.txt",
+          "exists": true,
+          "size_bytes": 1837218
+        },
+        "test.parquet": {
+          "path": "E:\\code\\outfit_ai\\data\\raw\\polyvore\\data\\disjoint\\test.parquet",
+          "exists": true,
+          "size_bytes": 659098449
+        }
+      },
+      "json_stats": {
+        "num_outfits": 15145,
+        "duplicate_set_ids": 0,
+        "duplicate_set_index_pairs": 0,
+        "num_item_refs": 74262
+      },
+      "parquet_stats": {
+        "num_item_ids": 70035,
+        "filename": "test.parquet"
+      },
+      "txt_stats": {
+        "num_lines": 30290,
+        "num_positive": 15145,
+        "num_negative": 15145,
+        "tokens_per_line_min": 2,
+        "tokens_per_line_max": 14,
+        "num_unique_tokens": 74262,
+        "num_unique_set_ids": 15145
+      },
+      "set_consistency": {
+        "txt_num_unique_set_ids": 15145,
+        "json_num_set_ids": 15145,
+        "txt_only_set_ids": [],
+        "json_only_set_ids": []
+      },
+      "mapping_stats": {
+        "total_tokens": 148524,
+        "ok_tokens": 148524,
+        "fail_tokens": 0,
+        "ok_ratio": 1.0,
+        "fail_lines": 0,
+        "num_lines": 30290,
+        "fail_reasons": {},
+        "num_json_outfits": 15145
+      },
+      "ok_examples": [
+        {
+          "token": "222049137_1",
+          "set_id": "222049137",
+          "index": 1,
+          "item_id": "159402796"
+        },
+        {
+          "token": "222049137_2",
+          "set_id": "222049137",
+          "index": 2,
+          "item_id": "200810877"
+        },
+        {
+          "token": "222049137_3",
+          "set_id": "222049137",
+          "index": 3,
+          "item_id": "208881110"
+        },
+        {
+          "token": "222049137_4",
+          "set_id": "222049137",
+          "index": 4,
+          "item_id": "208898299"
+        },
+        {
+          "token": "222049137_5",
+          "set_id": "222049137",
+          "index": 5,
+          "item_id": "176837161"
+        }
+      ],
+      "failure_examples": [],
+      "passed": true
+    }
+  },
+  "cross_split_item_overlap": {
+    "counts": {
+      "train": 71967,
+      "valid": 14657,
+      "test": 70035
+    },
+    "overlaps": {
+      "train_intersect_valid": 3781,
+      "train_intersect_test": 84,
+      "valid_intersect_test": 34
+    },
+    "errors": []
+  },
+  "overall_passed": true
+}

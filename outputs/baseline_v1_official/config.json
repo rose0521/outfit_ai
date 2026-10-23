@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-10-22T22:42:14",
+  "seed": 42,
+  "model": "MeanPoolMLP",
+  "arch": {
+    "in_dim": 512,
+    "hidden": 256,
+    "out_dim": 1
+  },
+  "pooling": "mean (L2-normalized CLIP features, frozen)",
+  "loss": "BCEWithLogitsLoss",
+  "optimizer": "Adam",
+  "lr": 0.001,
+  "batch_size": 512,
+  "epochs": 100,
+  "patience": 15,
+  "n_params": 131585,
+  "eval": "官方 valid 划分（CP-AUC + FITB Top-1）",
+  "data": {
+    "train_samples": 33990,
+    "valid_samples": 6000,
+    "train_label_dist": {
+      "1.0": 16995,
+      "0.0": 16995
+    },
+    "valid_label_dist": {
+      "1.0": 3000,
+      "0.0": 3000
+    },
+    "train_parse_stats": {},
+    "valid_parse_stats": {},
+    "fitb_questions": 3000
+  }
+}

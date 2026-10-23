@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-10-22T23:55:42",
+  "seed": 42,
+  "model": "MeanPoolMLP",
+  "arch": {
+    "in_dim": 512,
+    "hidden": 256,
+    "out_dim": 1
+  },
+  "pooling": "mean (L2-normalized CLIP features, frozen)",
+  "loss": "BCEWithLogitsLoss",
+  "optimizer": "Adam",
+  "lr": 0.001,
+  "batch_size": 512,
+  "epochs": 100,
+  "patience": 15,
+  "n_params": 131585,
+  "model_selection": "best_epoch 由官方 valid 的 CP-AUC 决定，test 不参与调参",
+  "data": {
+    "train_samples": 33990,
+    "valid_samples": 6000,
+    "test_samples": 30290,
+    "train_label_dist": {
+      "1.0": 16995,
+      "0.0": 16995
+    },
+    "valid_label_dist": {
+      "1.0": 3000,
+      "0.0": 3000
+    },
+    "test_label_dist": {
+      "1.0": 15145,
+      "0.0": 15145
+    },
+    "train_parse_stats": {},
+    "valid_parse_stats": {},
+    "test_parse_stats": {},
+    "test_fitb_questions": 15145
+  }
+}
