@@ -22,3 +22,6 @@ vendor/fitin/runtime/fitin.sqlite
 
 # === 密钥等本地敏感配置（绝不提交）===
 .env
+
+# === 部署构建产物（可由 deploy/ 重新生成）===
+outfit_ai_deploy.zip

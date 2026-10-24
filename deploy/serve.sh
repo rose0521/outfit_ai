@@ -12,9 +12,12 @@ fi
 
 PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
+# 本地模型目录优先（不存在则回退按模型名联网找）
+CLIP_MODEL="${CLIP_MODEL:-models/clip-vit-base-patch32}"
 
-echo "[serve] 启动: http://${HOST}:${PORT}（特征仅 catalog）"
+echo "[serve] 启动: http://${HOST}:${PORT}（特征仅 catalog，CLIP=${CLIP_MODEL}）"
 exec "$PY" -X utf8 scripts/serve_demo.py \
   --host "$HOST" \
   --port "$PORT" \
-  --feature-dirs data/processed/clip_features_catalog
+  --feature-dirs data/processed/clip_features_catalog \
+  --clip-model "$CLIP_MODEL"
