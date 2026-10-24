@@ -13,6 +13,10 @@
     POST /api/outfit/score    搭配兼容性打分
     POST /api/outfit/fill     缺件推荐（补全搭配）
     GET  /api/item/{item_id}  查询商品是否有特征
+    POST /api/search          商品检索（文字搜图 / 以图搜图）
+    GET  /api/quality/{item}  质量评估（评分统计 + 评论维度优缺点）
+    POST /api/recommend       按需求推荐（预算/偏好特征，同学 Fitin 包）
+    POST /api/chat            自然语言路由（推荐 / 质量 / 搭配 / 搜索）
 
 设计原则
 --------
@@ -36,6 +40,7 @@ import argparse
 import base64
 import io
 import json
+import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
@@ -62,6 +67,8 @@ DEFAULT_METADATA = PROJECT_ROOT / "data" / "processed" / "metadata.csv"
 DEFAULT_QUALITY_CACHE = PROJECT_ROOT / "data" / "processed" / "quality_cache.json"
 DEFAULT_PRICE_PROVENANCE = PROJECT_ROOT / "data" / "provenance" / "前端价格显示.jsonl"
 DEFAULT_CLIP_MODEL = "openai/clip-vit-base-patch32"
+# 同学交接的 Fitin 规则推荐/质量维度包（backend_adapter.py + runtime/fitin.sqlite）
+DEFAULT_FITIN_ROOT = PROJECT_ROOT / "vendor" / "fitin"
 
 DEFAULT_FEAT_DIRS = [
     PROJECT_ROOT / "data" / "processed" / "clip_features",          # train
@@ -189,6 +196,14 @@ def _extract_item_ids(message, known_ids):
     return found
 
 
+# 命中这些词且不含具体 item_id 时，/api/chat 路由到 Fitin 按需推荐（而非 CLIP 搜图）
+RECOMMEND_KEYWORDS = (
+    "推荐", "建议", "挑", "买", "预算", "元", "以内", "以下", "适合", "想要", "想买",
+    "柔软", "透气", "显瘦", "修身", "保暖", "不透", "起球", "缩水", "褪色", "不扎",
+    "好打理", "做工", "通勤", "派对", "冬天", "夏天", "尺码",
+)
+
+
 def _init_search(args):
     """尝试加载商品库搜索索引（特征 + metadata + 质量缓存）。失败返回 None，不影响 outfit 接口。"""
     try:
@@ -222,6 +237,66 @@ def _init_search(args):
         return None
 
 
+def _init_fitin(fitin_root=None):
+    """加载同学交接的 FitinService（按需推荐 + 评论维度优缺点）。失败返回 None。
+
+    FitinService 纯标准库（sqlite3），读取 vendor/fitin/runtime/fitin.sqlite。
+    本服务用单线程 HTTPServer，实例在主线程创建并只被主线程访问，无需加锁。
+    """
+    fitin_root = Path(fitin_root) if fitin_root else DEFAULT_FITIN_ROOT
+    backend_dir = fitin_root
+    runtime_dir = fitin_root / "runtime"
+    if not (backend_dir / "backend_adapter.py").exists():
+        print(f"[i] 未找到 Fitin 后端包 {backend_dir}，推荐/质量维度接口暂不可用")
+        return None
+    if not (runtime_dir / "fitin.sqlite").exists():
+        print(f"[i] 未找到 {runtime_dir / 'fitin.sqlite'}，推荐/质量维度接口暂不可用")
+        return None
+    try:
+        if str(backend_dir) not in sys.path:
+            sys.path.insert(0, str(backend_dir))
+        from backend_adapter import FitinService
+        svc = FitinService(data_root=str(runtime_dir))
+        print(f"[i] Fitin 推荐/质量服务已就绪（{runtime_dir / 'fitin.sqlite'}）")
+        return svc
+    except Exception as e:
+        print(f"[!] Fitin 服务加载失败（推荐/质量维度接口不可用）: {e}")
+        return None
+
+
+def _fitin_quality(fitin, item_id):
+    """从 Fitin 服务取一件商品的维度优缺点（pros/cons + 维度统计）。失败返回 {}。
+
+    用 FitinService.product() 拿公开的优缺点文本，用 catalog.get_product_assessment()
+    拿维度正负面统计（只保留有提及的维度），星级统计仍以 quality_cache.json 为准。
+    """
+    if fitin is None:
+        return {}
+    try:
+        prod = fitin.product(item_id)
+        detail = fitin.catalog.get_product_assessment(item_id)
+        assessment = detail["assessment"]
+        aspects = {}
+        for a in assessment.get("aspects", {}).values():
+            if a.get("mentioned_reviews"):
+                aspects[a["name"]] = {
+                    "mentioned": a.get("mentioned_reviews", 0),
+                    "positive": a.get("positive_reviews", 0),
+                    "negative": a.get("negative_reviews", 0),
+                    "mixed": a.get("mixed_reviews", 0),
+                    "neutral": a.get("neutral_reviews", 0),
+                }
+        return {
+            "pros": prod.get("pros", []),
+            "cons": prod.get("cons", []),
+            "aspects": aspects,
+            "evidence_level": assessment.get("evidence_level_zh"),
+            "assessment_status": assessment.get("assessment_status"),
+        }
+    except Exception:
+        return {}
+
+
 # ------------------------------------------------------------------------------
 # HTTP 服务
 # ------------------------------------------------------------------------------
@@ -229,6 +304,7 @@ class Handler(BaseHTTPRequestHandler):
     model = None
     id_to_vec = None
     search = None
+    fitin = None
     model_name = "MeanPoolMLP"
 
     def _send_json(self, obj, code=200):
@@ -275,6 +351,7 @@ class Handler(BaseHTTPRequestHandler):
             if not meta and not q:
                 self._send_json({"error": "item not found"}, 404)
                 return
+            fit = _fitin_quality(self.fitin, item_id)
             self._send_json({
                 "item_id": item_id,
                 "rating_mean": q.get("rating_mean"),
@@ -282,9 +359,11 @@ class Handler(BaseHTTPRequestHandler):
                 "rating_count": q.get("rating_count"),
                 "positive_rate": q.get("positive_rate"),
                 "rating_dist": q.get("rating_dist", {}),
-                "aspects": q.get("aspects", {}),
-                "pros": q.get("pros", []),
-                "cons": q.get("cons", []),
+                "aspects": fit.get("aspects") or q.get("aspects", {}),
+                "pros": fit.get("pros") or q.get("pros", []),
+                "cons": fit.get("cons") or q.get("cons", []),
+                "evidence_level": fit.get("evidence_level"),
+                "assessment_status": fit.get("assessment_status"),
                 "title": meta.get("title"),
                 "price": meta.get("price"),
                 "price_display": prov.get("price_display"),
@@ -366,6 +445,28 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json({"results": results})
             return
 
+        if path == "/api/recommend":
+            if self.fitin is None:
+                self._send_json({"error": "推荐服务未启用（缺少 Fitin 数据包）"}, 503)
+                return
+            query = body.get("query")
+            if not isinstance(query, str) or not query.strip():
+                self._send_json({"error": "query 必须是非空字符串"}, 400)
+                return
+            limit = body.get("limit", 3)
+            if not isinstance(limit, int) or not (1 <= limit <= 20):
+                limit = 3
+            try:
+                payload = self.fitin.recommend(query.strip(), limit=limit)
+            except ValueError as e:
+                self._send_json({"error": str(e)}, 400)
+                return
+            except Exception as e:
+                self._send_json({"error": f"推荐失败: {e}"}, 500)
+                return
+            self._send_json(payload)
+            return
+
         if path == "/api/chat":
             message = body.get("message")
             if not isinstance(message, str) or not message.strip():
@@ -403,6 +504,15 @@ class Handler(BaseHTTPRequestHandler):
                         "missing": [str(x) for x in missing],
                     })
                     reply = f"这几件商品的搭配度为 {score:.2f}。"
+            elif (not ids and self.fitin is not None
+                  and any(k in message for k in RECOMMEND_KEYWORDS)):
+                try:
+                    payload = self.fitin.recommend(message, limit=3)
+                except Exception as e:
+                    reply = f"推荐服务暂时不可用：{e}"
+                else:
+                    actions.append({"type": "recommend", "payload": payload})
+                    reply = payload.get("opening", "已为你挑选了几款商品。")
             else:
                 if self.search is not None:
                     results = self.search.search_text(message, top_k=5)
@@ -441,6 +551,8 @@ def main():
                         help="价格标签 jsonl（默认 data/provenance/前端价格显示.jsonl）")
     parser.add_argument("--clip-model", type=str, default=DEFAULT_CLIP_MODEL,
                         help="CLIP 模型名（用于搜索/文字编码）")
+    parser.add_argument("--fitin-root", type=str, default=str(DEFAULT_FITIN_ROOT),
+                        help="Fitin 规则推荐包根目录（默认 vendor/fitin）")
     args = parser.parse_args()
 
     if not _HAS_TORCH:
@@ -472,6 +584,7 @@ def main():
     Handler.model_name = "MeanPoolMLP"
 
     Handler.search = _init_search(args)
+    Handler.fitin = _init_fitin(args.fitin_root)
 
     server = HTTPServer((args.host, args.port), Handler)
     print(f"[3] 服务已启动: http://{args.host}:{args.port}")
@@ -484,6 +597,8 @@ def main():
         print("      POST /api/search")
         print("      GET  /api/quality/{item_id}")
         print("      POST /api/chat")
+    if Handler.fitin is not None:
+        print("      POST /api/recommend")
     print("    按 Ctrl+C 停止服务。")
     try:
         server.serve_forever()

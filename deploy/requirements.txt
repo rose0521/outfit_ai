@@ -1,0 +1,5 @@
+# torch 需单独装 CPU 版，见 deploy/README.md：
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+transformers>=4.40
+Pillow>=10
+numpy>=1.24

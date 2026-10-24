@@ -16,3 +16,6 @@ outputs/*/prepared_data.npz
 Thumbs.db
 .idea/
 .vscode/
+
+# === 同学交接的 SQLite（衍生数据，可由其 pipeline 重建；部署时随包拷贝）===
+vendor/fitin/runtime/fitin.sqlite

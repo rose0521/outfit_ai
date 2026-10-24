@@ -1,0 +1,18 @@
+[Unit]
+Description=Outfit AI demo service (检索/质量/推荐/穿搭)
+After=network.target
+
+[Service]
+Type=simple
+# 按实际部署用户和路径修改
+User=ubuntu
+WorkingDirectory=/opt/outfit_ai
+# 只加载商品库特征，2G 内存跑得动
+ExecStart=/opt/outfit_ai/.venv/bin/python -X utf8 scripts/serve_demo.py --host 0.0.0.0 --port 8000 --feature-dirs data/processed/clip_features_catalog
+# 国内下载 CLIP 模型用镜像（首次启动时生效）
+Environment=HF_ENDPOINT=https://hf-mirror.com
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
