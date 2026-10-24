@@ -46,6 +46,8 @@ from pathlib import Path
 
 import numpy as np
 
+from llm_agent import LLMAgent
+
 try:
     import torch
     import torch.nn as nn
@@ -305,6 +307,7 @@ class Handler(BaseHTTPRequestHandler):
     id_to_vec = None
     search = None
     fitin = None
+    llm = None
     model_name = "MeanPoolMLP"
 
     def _send_json(self, obj, code=200):
@@ -323,6 +326,126 @@ class Handler(BaseHTTPRequestHandler):
             return json.loads(self.rfile.read(n).decode("utf-8"))
         except Exception:
             return None
+
+    # ------------------------------------------------------------------ LLM 工具
+    def _execute_tool(self, name, args):
+        """LLM function calling 的本地执行器：按工具名调用已有逻辑，返回结构化结果。"""
+        if name == "search_products":
+            query = args.get("query")
+            if not isinstance(query, str) or not query.strip():
+                return {"error": "缺少搜索词 query"}
+            if self.search is None:
+                return {"error": "搜索服务未启用"}
+            top_k = args.get("top_k", 5)
+            if not isinstance(top_k, int) or not (1 <= top_k <= 20):
+                top_k = 5
+            return {"results": self.search.search_text(query.strip(), top_k=top_k)}
+
+        if name == "recommend_products":
+            query = args.get("query")
+            if not isinstance(query, str) or not query.strip():
+                return {"error": "缺少需求描述 query"}
+            if self.fitin is None:
+                return {"error": "推荐服务未启用"}
+            limit = args.get("limit", 3)
+            if not isinstance(limit, int) or not (1 <= limit <= 20):
+                limit = 3
+            return self.fitin.recommend(query.strip(), limit=limit)
+
+        if name == "get_quality":
+            item_id = str(args.get("item_id", "")).strip()
+            if not item_id:
+                return {"error": "缺少商品编号 item_id"}
+            if self.search is None:
+                return {"error": "质量服务未启用"}
+            meta = self.search.metadata.get(item_id, {})
+            q = self.search.quality.get(item_id, {})
+            if not meta and not q:
+                return {"error": f"商品 {item_id} 不存在"}
+            fit = _fitin_quality(self.fitin, item_id)
+            prov = self.search.price_prov.get(item_id, {})
+            return {
+                "item_id": item_id,
+                "title": meta.get("title"),
+                "rating_mean_5": q.get("rating_mean_5"),
+                "rating_count": q.get("rating_count"),
+                "positive_rate": q.get("positive_rate"),
+                "pros": fit.get("pros", []),
+                "cons": fit.get("cons", []),
+                "price_display": prov.get("price_display"),
+            }
+
+        if name == "score_outfit":
+            items = args.get("items") or []
+            if not isinstance(items, list) or len(items) < 2:
+                return {"error": "items 至少需要 2 个商品编号"}
+            score, missing = outfit_score(self.model, self.id_to_vec, items)
+            if score is None:
+                return {"error": "所有商品均无特征", "missing": [str(x) for x in missing]}
+            return {"score": round(score, 4), "items": [str(x) for x in items],
+                    "missing": [str(x) for x in missing]}
+
+        if name == "fill_outfit":
+            items = args.get("items") or []
+            candidates = args.get("candidates") or []
+            if not isinstance(items, list) or not items or not isinstance(candidates, list) or not candidates:
+                return {"error": "items 和 candidates 都必须是非空列表"}
+            ranked = outfit_fill(self.model, self.id_to_vec, items, candidates)
+            if not ranked:
+                return {"error": "候选均无特征"}
+            return {"best_item_id": ranked[0][0], "best_score": round(ranked[0][1], 4),
+                    "ranked": [{"item_id": i, "score": round(s, 4)} for i, s in ranked[:5]]}
+
+        return {"error": f"未知工具 {name}"}
+
+    # ------------------------------------------------------------------ 规则路由（LLM 未配置或失败时的保底）
+    def _rule_chat(self, message):
+        actions = []
+        known_ids = self.search.ids if self.search else []
+        ids = _extract_item_ids(message, known_ids)
+
+        if ids and any(k in message for k in ("评价", "质量", "评分", "口碑", "好不好", "怎么样")):
+            item_id = ids[0]
+            q = self.search.quality.get(item_id, {})
+            meta = self.search.metadata.get(item_id, {})
+            fit = _fitin_quality(self.fitin, item_id)
+            actions.append({
+                "type": "quality",
+                "item_id": item_id,
+                "rating_mean": q.get("rating_mean"),
+                "rating_mean_5": q.get("rating_mean_5"),
+                "rating_count": q.get("rating_count"),
+                "positive_rate": q.get("positive_rate"),
+                "aspects": fit.get("aspects", {}),
+                "pros": fit.get("pros", []),
+                "cons": fit.get("cons", []),
+                "title": meta.get("title"),
+            })
+            return f"已为你查看商品 {item_id} 的质量信息。", actions
+        if len(ids) >= 2 and any(k in message for k in ("搭", "搭配", "配", "补")):
+            score, missing = outfit_score(self.model, self.id_to_vec, ids)
+            if score is None:
+                return "这些商品都没有特征，无法打分。", actions
+            actions.append({
+                "type": "outfit",
+                "items": [str(x) for x in ids],
+                "score": round(score, 4),
+                "missing": [str(x) for x in missing],
+            })
+            return f"这几件商品的搭配度为 {score:.2f}。", actions
+        if (not ids and self.fitin is not None
+                and any(k in message for k in RECOMMEND_KEYWORDS)):
+            try:
+                payload = self.fitin.recommend(message, limit=3)
+            except Exception as e:
+                return f"推荐服务暂时不可用：{e}", actions
+            actions.append({"type": "recommend", "payload": payload})
+            return payload.get("opening", "已为你挑选了几款商品。"), actions
+        if self.search is not None:
+            results = self.search.search_text(message, top_k=5)
+            actions.append({"type": "search", "results": results})
+            return f"已为你找到与「{message}」相关的 {len(results)} 件商品。", actions
+        return "搜索服务未启用（缺少商品库数据），暂时只能做搭配打分。", actions
 
     def do_GET(self):
         path = self.path.split("?")[0].rstrip("/")
@@ -472,54 +595,24 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(message, str) or not message.strip():
                 self._send_json({"error": "message 必须是非空字符串"}, 400)
                 return
-            actions = []
-            known_ids = self.search.ids if self.search else []
-            ids = _extract_item_ids(message, known_ids)
+            history = body.get("history")
+            if history is not None and not isinstance(history, list):
+                history = None
 
-            if ids and any(k in message for k in ("评价", "质量", "评分", "口碑", "好不好", "怎么样")):
-                item_id = ids[0]
-                q = self.search.quality.get(item_id, {})
-                meta = self.search.metadata.get(item_id, {})
-                actions.append({
-                    "type": "quality",
-                    "item_id": item_id,
-                    "rating_mean": q.get("rating_mean"),
-                    "rating_count": q.get("rating_count"),
-                    "positive_rate": q.get("positive_rate"),
-                    "aspects": q.get("aspects", {}),
-                    "pros": q.get("pros", []),
-                    "cons": q.get("cons", []),
-                    "title": meta.get("title"),
-                })
-                reply = f"已为你查看商品 {item_id} 的质量信息。"
-            elif len(ids) >= 2 and any(k in message for k in ("搭", "搭配", "配", "补")):
-                score, missing = outfit_score(self.model, self.id_to_vec, ids)
-                if score is None:
-                    reply = "这些商品都没有特征，无法打分。"
-                else:
-                    actions.append({
-                        "type": "outfit",
-                        "items": [str(x) for x in ids],
-                        "score": round(score, 4),
-                        "missing": [str(x) for x in missing],
-                    })
-                    reply = f"这几件商品的搭配度为 {score:.2f}。"
-            elif (not ids and self.fitin is not None
-                  and any(k in message for k in RECOMMEND_KEYWORDS)):
+            # 优先走 LLM function calling（已配置 DEEPSEEK_API_KEY 时）；否则/失败则回退规则路由
+            if Handler.llm is not None and Handler.llm.is_configured():
                 try:
-                    payload = self.fitin.recommend(message, limit=3)
+                    reply, actions = Handler.llm.run(
+                        message.strip(),
+                        lambda name, args: self._execute_tool(name, args),
+                        history=history,
+                    )
                 except Exception as e:
-                    reply = f"推荐服务暂时不可用：{e}"
-                else:
-                    actions.append({"type": "recommend", "payload": payload})
-                    reply = payload.get("opening", "已为你挑选了几款商品。")
+                    print(f"[!] LLM 路由失败，回退规则路由: {e}")
+                    reply, actions = self._rule_chat(message)
             else:
-                if self.search is not None:
-                    results = self.search.search_text(message, top_k=5)
-                    actions.append({"type": "search", "results": results})
-                    reply = f"已为你找到与「{message}」相关的 {len(results)} 件商品。"
-                else:
-                    reply = "搜索服务未启用（缺少商品库数据），暂时只能做搭配打分。"
+                reply, actions = self._rule_chat(message)
+
             self._send_json({"reply": reply, "actions": actions})
             return
 
@@ -585,6 +678,7 @@ def main():
 
     Handler.search = _init_search(args)
     Handler.fitin = _init_fitin(args.fitin_root)
+    Handler.llm = LLMAgent()
 
     server = HTTPServer((args.host, args.port), Handler)
     print(f"[3] 服务已启动: http://{args.host}:{args.port}")
@@ -599,6 +693,10 @@ def main():
         print("      POST /api/chat")
     if Handler.fitin is not None:
         print("      POST /api/recommend")
+    if Handler.llm.is_configured():
+        print(f"      /api/chat 走 LLM 路由（model={Handler.llm.model}）")
+    else:
+        print("      /api/chat 走规则路由（未配置 DEEPSEEK_API_KEY）")
     print("    按 Ctrl+C 停止服务。")
     try:
         server.serve_forever()

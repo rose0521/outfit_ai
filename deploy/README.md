@@ -88,6 +88,33 @@ python -c "from transformers import CLIPModel, CLIPProcessor; CLIPModel.from_pre
 `~/.cache/huggingface/hub/models--openai--clip-vit-base-patch32` 拷到服务器同路径，
 免去在线下载。
 
+## 3.5 接入 DeepSeek 自然语言（可选，加分项）
+
+`/api/chat` 默认走规则路由；配置了 DeepSeek API key 后，自动改用 LLM function calling
+（模型负责判断意图、抽取参数，工具仍在本地执行），失败自动回退规则、不影响其它接口。
+
+配置（环境变量，或在项目根目录建 `.env` 文件，两者都行）：
+
+```bash
+export DEEPSEEK_API_KEY=sk-xxx
+export DEEPSEEK_BASE_URL=https://api.deepseek.com     # 默认值，可不设
+export DEEPSEEK_MODEL=DeepSeek-V4.1-Flash-1017        # 默认值，可不设
+```
+
+`.env` 文件（已加入 `.gitignore`，不会上传）：
+
+```
+DEEPSEEK_API_KEY=sk-xxx
+```
+
+自测（不起服务，直接验证 key / 模型 / 路由）：
+
+```bash
+python -X utf8 scripts/test_llm.py "帮我找一件白色衬衫"
+```
+
+systemd 部署时把 key 写进 `deploy/outfit-ai.service` 的 `Environment=` 行即可。
+
 ## 4. 启动
 
 ```bash

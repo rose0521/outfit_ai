@@ -19,3 +19,6 @@ Thumbs.db
 
 # === 同学交接的 SQLite（衍生数据，可由其 pipeline 重建；部署时随包拷贝）===
 vendor/fitin/runtime/fitin.sqlite
+
+# === 密钥等本地敏感配置（绝不提交）===
+.env
