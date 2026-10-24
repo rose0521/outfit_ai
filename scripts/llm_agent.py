@@ -29,7 +29,7 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_BASE_URL = "https://api.deepseek.com"
-DEFAULT_MODEL = "DeepSeek-V4.1-Flash-1017"
+DEFAULT_MODEL = "deepseek-flash"
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ENV_FILE = PROJECT_ROOT / ".env"

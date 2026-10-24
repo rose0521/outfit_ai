@@ -98,7 +98,7 @@ python -c "from transformers import CLIPModel, CLIPProcessor; CLIPModel.from_pre
 ```bash
 export DEEPSEEK_API_KEY=sk-xxx
 export DEEPSEEK_BASE_URL=https://api.deepseek.com     # 默认值，可不设
-export DEEPSEEK_MODEL=DeepSeek-V4.1-Flash-1017        # 默认值，可不设
+export DEEPSEEK_MODEL=deepseek-flash                 # 默认值，可不设
 ```
 
 `.env` 文件（已加入 `.gitignore`，不会上传）：
